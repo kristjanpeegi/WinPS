@@ -9,7 +9,6 @@ foreach ($user in $users){
     $username = Translit($username)
     $upname = $username + "@sv-kool.local"
     $displayname = $user.FirstName + " " + $user.LastName
-
     #Kontrollime kas kasutaja on olemas või ei. Kui kasutaja on olemas tuleb viisakas veateade.
     $existingUser = Get-ADUser -Filter {SamAccountName -eq $username}
     if ($existingUser -eq $null) {
