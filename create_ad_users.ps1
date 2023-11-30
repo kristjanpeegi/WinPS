@@ -9,7 +9,7 @@ foreach ($user in $users){
     $username = Translit($username)
     $upname = $username + "@sv-kool.local"
     $displayname = $user.FirstName + " " + $user.LastName
-    echo $displayname
+    New-ADUser -Name $username -DisplayName $displayname -GivenName $user.FirstName -Surname $user.LastName -Department $user.Department -Title $user.Role -UserPrincipalName $upname -AccountPassword (ConvertTo-SecureString $user.Password -AsPlainText -force) -Enabled $true
 }
 #Lisame funktsiooni mis muudab UTF-8 sümbolid LATIN charsetile sobivaks
 function Translit {
