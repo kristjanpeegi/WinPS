@@ -12,6 +12,7 @@ foreach ($user in $users){
     $upname = $username + "@sv-kool.local"
     $displayname = $user.FirstName + " " + $user.LastName
     $uusParool = GenerateStrongPassword (10)
+
     #Kontrollime kas kasutaja on olemas või ei. Kui kasutaja on olemas tuleb viisakas veateade.
     $existingUser = Get-ADUser -Filter {SamAccountName -eq $username}
     if ($existingUser -eq $null) {
