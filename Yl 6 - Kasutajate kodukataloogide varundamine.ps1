@@ -17,10 +17,10 @@ foreach ($user in $users){
     $existingUser = Get-ADUser -Filter {SamAccountName -eq $username}
     if ($existingUser -eq $null) {
         New-ADUser -Name $username -DisplayName $displayname -GivenName $user.FirstName -Surname $user.LastName -Department $user.Department -Title $user.Role -UserPrincipalName $upname -AccountPassword (ConvertTo-SecureString $uusParool -AsPlainText -force) -Enabled $true
-    $LASTEXITCODE = $?
-    $results += [PSCustomObject]@{
-        "Username" = $username
-        "LoodudParool" = $uusParool
+        $LASTEXITCODE = $?
+        $results += [PSCustomObject]@{
+            "Username" = $username
+            "LoodudParool" = $uusParool
         }
     } else {
         Write-Host "Kasutaja $username on juba olemas!"
@@ -71,7 +71,6 @@ function GenerateStrongPassword ([Parameter(Mandatory=$true)][int]$PasswordLengh
         }
         } While ($PassComplexCheck -eq $false)
     return $newPassword
-
 }
 
 # Loome varunduskausta
@@ -80,17 +79,33 @@ if (-not (Test-Path -Path $backupFolder)) {
     New-Item -Path $backupFolder -ItemType Directory
 }
 
-# Saame kõikide kasutajate loetelu
-$allUsers = Get-ADUser -Filter *
+# Funktsioon kodukausta loomiseks, kui see puudub
+function CreateUserFolder($username) {
+    $userFolder = "C:\Users\$username"
+    if (-not (Test-Path -Path $userFolder -PathType Container)) {
+        New-Item -Path $userFolder -ItemType Directory
+        Write-Host "Kasutaja $username kodukaust on loodud."
+    }
+}
+
+# Saame kõikide kasutajate loetelu, välja arvatud "Administrator"
+$allUsers = Get-ADUser -Filter * | Where-Object { $_.SamAccountName -ne "Administrator" }
 
 foreach ($user in $allUsers){
     $username = $user.SamAccountName
+    # Loome kasutaja kodukausta, kui see puudub
+    CreateUserFolder $username
 
     # Vaatame, kas kasutaja kodukausta eksisteerib
     $userFolder = "C:\Users\$username"
     if (Test-Path -Path $userFolder -PathType Container) {
         $backupFileName = "{0}-{1:dd.MM.yyyy}.zip" -f $username, (Get-Date)
         $backupPath = Join-Path -Path $backupFolder -ChildPath $backupFileName
+
+        # Kui varundusfail eksisteerib, siis kustutame selle enne uue varukoopia loomist
+        if (Test-Path $backupPath -PathType Leaf) {
+            Remove-Item $backupPath -Force
+        }
 
         # Loome kasutaja kodukausta varunduse
         Add-Type -AssemblyName System.IO.Compression.FileSystem
