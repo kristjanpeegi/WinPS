@@ -2,6 +2,7 @@
 $file = "C:\Users\Administrator\Desktop\WinPS\adkasutajad.csv"
 $results = @()
 #Impordime faili
+
 $users = Import-Csv $file -Encoding Default -Delimiter ";"
 foreach ($user in $users){
     #Kasutajanimi on eesnimi.perekonnanimi
